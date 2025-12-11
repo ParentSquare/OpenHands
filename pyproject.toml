@@ -88,12 +88,8 @@ bashlex = "^0.18"
 # Explicitly pinned packages for latest versions
 pypdf = "^6.0.0"
 pillow = "^11.3.0"
-
-
 starlette = "^0.50.0"
 authlib = "^1.6.5"
-
-
 urllib3 = "^2.5.0"
 requests = "^2.32.5"
 setuptools = ">=78.1.1"
@@ -224,6 +220,3 @@ lint.pydocstyle.convention = "google"
 concurrency = [ "gevent" ]
 relative_files = true
 omit = [ "enterprise/tests/*", "**/test_*" ]
-
-
-
