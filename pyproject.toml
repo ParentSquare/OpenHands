@@ -26,7 +26,7 @@ include = [
 python = "^3.12,<3.14"
 litellm = ">=1.83.10"                              # Bumped to address CVE-2026-42208/42271/42203/40217 (CRO-12735)
 openai = ">=2.8.0,<3.0.0"                         # Updated to be compatible with litellm and browser-use
-aiohttp = ">=3.13.3"                               # Updated to address security vulnerabilities in versions <= 3.13.2
+aiohttp = ">=3.14.3"                               # Updated to address CVE-2026-69244 (COMP-171); versions <= 3.14.2 are vulnerable
 google-genai = "*"                                 # To use litellm with Gemini Pro API
 google-api-python-client = "^2.164.0"              # For Google Sheets API
 google-auth-httplib2 = "*"                         # For Google Sheets authentication
@@ -94,6 +94,8 @@ h2 = ">=4.3.0"
 nbconvert = ">=7.17.0"
 filelock = ">=3.20.3"
 nltk = ">=3.9.4"
+cryptography = ">=50.0.0"                          # Updated to address CVE-2026-69247 (COMP-171); versions >= 44.0.0, < 50.0.0 are vulnerable
+gitpython = ">=3.1.57"                             # Updated to address GHSA-3f7w-8rr8-f37f (COMP-171); versions <= 3.1.56 are vulnerable
 
 # TODO: These are integrations that should probably be optional
 redis = ">=5.2,<7.0"
@@ -193,3 +195,5 @@ lint.pydocstyle.convention = "google"
 concurrency = [ "gevent" ]
 relative_files = true
 omit = [ "**/test_*" ]
+
+
