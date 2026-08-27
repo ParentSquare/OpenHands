@@ -95,7 +95,7 @@ nbconvert = ">=7.17.0"
 filelock = ">=3.20.3"
 nltk = ">=3.9.4"
 cryptography = ">=50.0.0"                          # Updated to address CVE-2026-69247 (COMP-171); versions >= 44.0.0, < 50.0.0 are vulnerable
-gitpython = ">=3.1.57"                             # Updated to address GHSA-3f7w-8rr8-f37f (COMP-171); versions <= 3.1.56 are vulnerable
+gitpython = ">=3.1.58"                             # Bumped to address GHSA-4gmw-gg2m-w46p/9rj7-rf2p-w77r/hmq2-w58f-27jc/jm78-9fvv-mhgr/wvpp-8hx9-p66j (COMP-204)
 
 # TODO: These are integrations that should probably be optional
 redis = ">=5.2,<7.0"
