@@ -51,7 +51,7 @@ zope-interface = "7.2"
 pathspec = "^0.12.1"
 pyjwt = "^2.9.0"
 dirhash = "*"
-tornado = "*"
+tornado = ">=6.5.8"                                # Updated to address CVE-2026-82397 (COMP-286); versions <= 6.5.7 are vulnerable
 python-dotenv = "*"
 rapidfuzz = "^3.9.0"
 whatthepatch = "^1.0.6"
@@ -93,7 +93,8 @@ setuptools = ">=78.1.1"
 h2 = ">=4.3.0"
 nbconvert = ">=7.17.0"
 filelock = ">=3.20.3"
-nltk = ">=3.9.4"
+nltk = ">=3.10.3"                                  # Updated to address CVE-2026-79675/78680/72818/71513 (COMP-286); versions < 3.10.3 are vulnerable (CVE-2026-81726 affects <= 3.10.3, no fix available yet)
+mistune = ">=3.3.3"                                # Updated to address CVE-2026-76098 (COMP-286); versions >= 3.3.0, < 3.3.3 are vulnerable
 cryptography = ">=50.0.0"                          # Updated to address CVE-2026-69247 (COMP-171); versions >= 44.0.0, < 50.0.0 are vulnerable
 gitpython = ">=3.1.58"                             # Bumped to address GHSA-4gmw-gg2m-w46p/9rj7-rf2p-w77r/hmq2-w58f-27jc/jm78-9fvv-mhgr/wvpp-8hx9-p66j (COMP-204)
 
@@ -195,5 +196,3 @@ lint.pydocstyle.convention = "google"
 concurrency = [ "gevent" ]
 relative_files = true
 omit = [ "**/test_*" ]
-
-
