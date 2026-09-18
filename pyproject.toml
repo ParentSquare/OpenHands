@@ -51,7 +51,7 @@ zope-interface = "7.2"
 pathspec = "^0.12.1"
 pyjwt = "^2.9.0"
 dirhash = "*"
-tornado = "*"
+tornado = ">=6.5.8"                                # Updated to address GHSA-8423-8fgw-73vq/GHSA-wwv5-g3v4-889x (COMP-287); versions <= 6.5.7 are vulnerable
 python-dotenv = "*"
 rapidfuzz = "^3.9.0"
 whatthepatch = "^1.0.6"
@@ -83,17 +83,17 @@ python-docx = "*"
 bashlex = "^0.18"
 
 # Explicitly pinned packages for security
-pypdf = "^6.0.0"
+pypdf = ">=6.16.1"                               # Updated to address CVE-2026-71852/71870/82398/84309/84310/84311 (COMP-287); versions < 6.16.1 are vulnerable
 pillow = ">=11.3,<13.0"
 starlette = ">=1.3.1,<2.0"
 authlib = "^1.6.6"
 urllib3 = "^2.5.0"
 requests = "^2.32.5"
 setuptools = ">=78.1.1"
-h2 = ">=4.3.0"
+h2 = ">=4.4.1"                                    # Updated to address CVE-2026-71554 (COMP-287); versions <= 4.4.0 are vulnerable
 nbconvert = ">=7.17.0"
 filelock = ">=3.20.3"
-nltk = ">=3.9.4"
+nltk = ">=3.10.3"                                 # Updated to address CVE-2026-12876/71514/81722/81723/81724/81727 (COMP-287); versions < 3.10.3 are vulnerable
 cryptography = ">=50.0.0"                          # Updated to address CVE-2026-69247 (COMP-171); versions >= 44.0.0, < 50.0.0 are vulnerable
 gitpython = ">=3.1.58"                             # Bumped to address GHSA-4gmw-gg2m-w46p/9rj7-rf2p-w77r/hmq2-w58f-27jc/jm78-9fvv-mhgr/wvpp-8hx9-p66j (COMP-204)
 
