@@ -93,7 +93,7 @@ setuptools = ">=78.1.1"
 h2 = ">=4.3.0"
 nbconvert = ">=7.17.0"
 filelock = ">=3.20.3"
-nltk = ">=3.9.4"
+nltk = ">=3.10.3"                                    # Updated to address CVE-2026-79657/78681/78682/79674/79676/80206/62384 (COMP-311); versions <= 3.10.2 are vulnerable
 cryptography = ">=50.0.0"                          # Updated to address CVE-2026-69247 (COMP-171); versions >= 44.0.0, < 50.0.0 are vulnerable
 gitpython = ">=3.1.58"                             # Bumped to address GHSA-4gmw-gg2m-w46p/9rj7-rf2p-w77r/hmq2-w58f-27jc/jm78-9fvv-mhgr/wvpp-8hx9-p66j (COMP-204)
 
