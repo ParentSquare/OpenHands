@@ -1,13 +1,14 @@
+import base64
 import hashlib
 import json
+import os
 from datetime import timedelta
 from pathlib import Path
 from typing import Any, AsyncGenerator
 
 import jwt
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from fastapi import Request
-from jose import jwe
-from jose.constants import ALGORITHMS
 from pydantic import BaseModel, PrivateAttr
 
 from openhands.agent_server.utils import utc_now
@@ -16,6 +17,46 @@ from openhands.app_server.utils.encryption_key import (
     EncryptionKey,
     get_default_encryption_keys,
 )
+
+
+def _b64e(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).rstrip(b'=').decode('ascii')
+
+
+def _b64d(data: str) -> bytes:
+    return base64.urlsafe_b64decode(data + '=' * (-len(data) % 4))
+
+
+def _jwe_header(token: str) -> dict[str, Any]:
+    """Return the unverified protected header of a compact JWE token."""
+    header = json.loads(_b64d(token.split('.')[0]))
+    if not isinstance(header, dict):
+        raise ValueError('Invalid JWE header')
+    return header
+
+
+def _jwe_encrypt(plaintext: bytes, key: bytes, kid: str) -> str:
+    """Encrypt to a compact JWE using alg=dir and enc=A256GCM (RFC 7516)."""
+    header = _b64e(
+        json.dumps({'alg': 'dir', 'enc': 'A256GCM', 'kid': kid}).encode('ascii')
+    )
+    iv = os.urandom(12)
+    sealed = AESGCM(key).encrypt(iv, plaintext, header.encode('ascii'))
+    ciphertext, tag = sealed[:-16], sealed[-16:]
+    return '.'.join([header, '', _b64e(iv), _b64e(ciphertext), _b64e(tag)])
+
+
+def _jwe_decrypt(token: str, key: bytes) -> bytes:
+    """Decrypt a compact JWE, accepting only alg=dir with enc=A256GCM."""
+    header_b64, encrypted_key, iv, ciphertext, tag = token.split('.')
+    header = _jwe_header(token)
+    if header.get('alg') != 'dir' or header.get('enc') != 'A256GCM':
+        raise ValueError('Unsupported JWE algorithm')
+    if encrypted_key:
+        raise ValueError('Unexpected encrypted key for alg=dir')
+    return AESGCM(key).decrypt(
+        _b64d(iv), _b64d(ciphertext) + _b64d(tag), header_b64.encode('ascii')
+    )
 
 
 class JwtService:
@@ -170,19 +211,7 @@ class JwtService:
 
         # Encrypt the payload (convert to JSON string first)
         payload_json = json.dumps(jwt_payload)
-        encrypted_token = jwe.encrypt(
-            payload_json,
-            key_256,
-            algorithm=ALGORITHMS.DIR,
-            encryption=ALGORITHMS.A256GCM,
-            kid=key_id,
-        )
-        # Ensure we return a string
-        return (
-            encrypted_token.decode('utf-8')
-            if isinstance(encrypted_token, bytes)
-            else encrypted_token
-        )
+        return _jwe_encrypt(payload_json.encode('utf-8'), key_256, key_id)
 
     def decrypt_jwe_token(
         self, token: str, key_id: str | None = None
@@ -204,7 +233,7 @@ class JwtService:
         if key_id is None:
             # Try to extract key_id from the token's header
             try:
-                header = jwe.get_unverified_header(token)
+                header = _jwe_header(token)
                 key_id = header.get('kid')
                 if not key_id:
                     raise ValueError("Token does not contain 'kid' header with key ID")
@@ -221,10 +250,7 @@ class JwtService:
         key_256 = hashlib.sha256(key_bytes).digest()
 
         try:
-            payload_json = jwe.decrypt(token, key_256)
-            assert payload_json is not None
-            # Parse the JSON string back to dictionary
-            payload = json.loads(payload_json)
+            payload = json.loads(_jwe_decrypt(token, key_256))
             return payload
         except Exception as e:
             raise Exception(f'Token decryption failed: {str(e)}')

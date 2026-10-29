@@ -7,13 +7,13 @@ This module tests the JWT service functionality including:
 - Error handling and edge cases
 """
 
+import base64
 import json
 from datetime import datetime, timedelta
 from unittest.mock import patch
 
 import jwt
 import pytest
-from jose import jwe
 from pydantic import SecretStr
 
 from openhands.app_server.services.jwt_service import JwtService
@@ -258,16 +258,36 @@ class TestJwtService:
 
     def test_jwe_token_decryption_no_kid_header(self, jwt_service):
         """Test JWE token decryption fails when token has no kid header."""
-        # Create a JWE token without kid header using python-jose directly
-        payload = {'user_id': '123'}
-        # Create a proper 32-byte key for A256GCM
-        key = b'12345678901234567890123456789012'  # Exactly 32 bytes
-
-        token = jwe.encrypt(
-            json.dumps(payload), key, algorithm='dir', encryption='A256GCM'
-        )
+        # A JWE (alg=dir, enc=A256GCM) minted by python-jose with no kid header
+        token = 'eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..4KfmOzAL7EXr3NXK.fwMeqk9gSFX7azHB4Xv97eyC.qevcpsqCP_KvUcExm8zLrg'
 
         with pytest.raises(ValueError, match='Invalid JWE token format'):
+            jwt_service.decrypt_jwe_token(token)
+
+    def test_jwe_token_decrypts_token_minted_by_python_jose(self, jwt_service):
+        """Tokens issued before python-jose was dropped still decrypt."""
+        token = 'eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwia2lkIjoia2V5MSJ9..cz05htAyHaWfYTxN.UUQgFtprOSjebxo277uMDXkL.HIp1bEZA-O4vuAmt8BMAcg'
+
+        assert jwt_service.decrypt_jwe_token(token) == {'user_id': '123'}
+
+    def test_jwe_token_decryption_tampered_token(self, jwt_service):
+        """Test JWE token decryption fails when the ciphertext is altered."""
+        token = jwt_service.create_jwe_token({'user_id': '123'}, key_id='key1')
+        header, key, iv, ciphertext, tag = token.split('.')
+        flipped = 'A' if ciphertext[0] != 'A' else 'B'
+        tampered = '.'.join([header, key, iv, flipped + ciphertext[1:], tag])
+
+        with pytest.raises(Exception, match='Token decryption failed'):
+            jwt_service.decrypt_jwe_token(tampered)
+
+    def test_jwe_token_decryption_rejects_other_algorithms(self, jwt_service):
+        """Test that only alg=dir with enc=A256GCM is accepted."""
+        header = base64.urlsafe_b64encode(
+            json.dumps({'alg': 'A128KW', 'enc': 'A128GCM', 'kid': 'key1'}).encode()
+        ).rstrip(b'=')
+        token = header.decode() + '.AAAA.AAAA.AAAA.AAAA'
+
+        with pytest.raises(Exception, match='Unsupported JWE algorithm'):
             jwt_service.decrypt_jwe_token(token)
 
     def test_jwe_token_decryption_wrong_key(self, jwt_service):
