@@ -5,6 +5,7 @@ from openhands.llm.model_features import (
     get_features,
     model_matches,
     normalize_model_name,
+    supports_sampling_params,
 )
 
 
@@ -310,3 +311,38 @@ def test_stop_words_grok_provider_prefixed():
 def test_supports_stop_words_false_models(model):
     features = get_features(model)
     assert features.supports_stop_words is False
+
+
+SONNET_5_MODELS = [
+    'claude-sonnet-5-5',
+    'anthropic/claude-sonnet-5-5',
+    'bedrock/anthropic.claude-sonnet-5-5-v1:0',
+    'bedrock/us.anthropic.claude-sonnet-5-5-v1:0',
+    'bedrock/global.anthropic.claude-sonnet-5-5-v1:0',
+    'bedrock_converse/us.anthropic.claude-sonnet-5-5-v1:0',
+]
+
+
+@pytest.mark.parametrize('model', SONNET_5_MODELS)
+def test_sonnet_5_prompt_cache_and_function_calling(model):
+    features = get_features(model)
+    assert features.supports_prompt_cache is True
+    assert features.supports_function_calling is True
+
+
+@pytest.mark.parametrize('model', SONNET_5_MODELS)
+def test_sonnet_5_does_not_support_sampling_params(model):
+    assert supports_sampling_params(model) is False
+
+
+@pytest.mark.parametrize(
+    'model',
+    [
+        'gpt-4o',
+        'claude-sonnet-4-latest',
+        'bedrock/us.anthropic.claude-sonnet-4-20250514-v1:0',
+        'claude-opus-4-1',
+    ],
+)
+def test_other_models_support_sampling_params(model):
+    assert supports_sampling_params(model) is True

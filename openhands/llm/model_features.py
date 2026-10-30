@@ -73,6 +73,9 @@ FUNCTION_CALLING_PATTERNS: list[str] = [
     'us.anthropic.claude-sonnet-4*',
     'global.anthropic.claude-sonnet-4*',
     'claude-opus-4*',
+    # Claude Sonnet 5 (including Bedrock region-prefixed IDs).
+    'claude-sonnet-5*',
+    '*anthropic.claude-sonnet-5*',
     # OpenAI families
     'gpt-4o*',
     'gpt-4.1',
@@ -124,6 +127,16 @@ PROMPT_CACHE_PATTERNS: list[str] = [
     'us.anthropic.claude-sonnet-4*',
     'global.anthropic.claude-sonnet-4*',
     'claude-opus-4*',
+    # Claude Sonnet 5 (including Bedrock region-prefixed IDs).
+    'claude-sonnet-5*',
+    '*anthropic.claude-sonnet-5*',
+]
+
+# Models that reject requests setting sampling parameters such as temperature
+# and top_p (e.g. Bedrock: "`temperature` is deprecated for this model").
+SAMPLING_PARAMS_UNSUPPORTED_PATTERNS: list[str] = [
+    'claude-sonnet-5*',
+    '*anthropic.claude-sonnet-5*',
 ]
 
 SUPPORTS_STOP_WORDS_FALSE_PATTERNS: list[str] = [
@@ -146,3 +159,8 @@ def get_features(model: str) -> ModelFeatures:
             model, SUPPORTS_STOP_WORDS_FALSE_PATTERNS
         ),
     )
+
+
+def supports_sampling_params(model: str) -> bool:
+    """Return False if the model rejects temperature/top_p parameters."""
+    return not model_matches(model, SAMPLING_PARAMS_UNSUPPORTED_PATTERNS)

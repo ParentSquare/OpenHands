@@ -202,6 +202,44 @@ def test_llm_top_k_not_in_completion_when_none(mock_litellm_completion):
 
 
 @patch('openhands.llm.llm.litellm_completion')
+def test_llm_omits_sampling_params_for_sonnet_5_on_bedrock(
+    mock_litellm_completion,
+):
+    config = LLMConfig(
+        model='bedrock/us.anthropic.claude-sonnet-5-5-v1:0',
+        temperature=0.0,
+        top_p=0.9,
+    )
+    llm = LLM(config, service_id='test-service')
+
+    def side_effect(*args, **kwargs):
+        assert 'temperature' not in kwargs
+        assert 'top_p' not in kwargs
+        return {'choices': [{'message': {'content': 'Mocked response'}}]}
+
+    mock_litellm_completion.side_effect = side_effect
+
+    llm.completion(messages=[{'role': 'system', 'content': 'Test message'}])
+    mock_litellm_completion.assert_called_once()
+
+
+@patch('openhands.llm.llm.litellm_completion')
+def test_llm_keeps_sampling_params_for_other_models(mock_litellm_completion):
+    config = LLMConfig(model='gpt-4o', temperature=0.3, top_p=0.9)
+    llm = LLM(config, service_id='test-service')
+
+    def side_effect(*args, **kwargs):
+        assert kwargs['temperature'] == 0.3
+        assert kwargs['top_p'] == 0.9
+        return {'choices': [{'message': {'content': 'Mocked response'}}]}
+
+    mock_litellm_completion.side_effect = side_effect
+
+    llm.completion(messages=[{'role': 'system', 'content': 'Test message'}])
+    mock_litellm_completion.assert_called_once()
+
+
+@patch('openhands.llm.llm.litellm_completion')
 def test_completion_kwargs_passed_to_litellm(mock_litellm_completion):
     # Create a config with custom completion_kwargs
     config_with_completion_kwargs = LLMConfig(
