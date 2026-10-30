@@ -9,7 +9,7 @@ import httpx
 
 from openhands.core.config import LLMConfig
 from openhands.llm.metrics import Metrics
-from openhands.llm.model_features import get_features
+from openhands.llm.model_features import get_features, supports_sampling_params
 
 with warnings.catch_warnings():
     warnings.simplefilter('ignore')
@@ -161,6 +161,11 @@ class LLM(RetryMixin, DebugMixin):
                 'temperature'
             )  # temperature is not supported for reasoning models
             kwargs.pop('top_p')  # reasoning model like o3 doesn't support top_p
+        if not supports_sampling_params(self.config.model):
+            # Some models (e.g. Claude Sonnet 5 on Bedrock) reject requests
+            # that set temperature or top_p at all.
+            kwargs.pop('temperature', None)
+            kwargs.pop('top_p', None)
         # Azure issue: https://github.com/OpenHands/OpenHands/issues/6777
         if self.config.model.startswith('azure'):
             kwargs['max_tokens'] = self.config.max_output_tokens
