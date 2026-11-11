@@ -24,7 +24,7 @@ include = [
 
 [tool.poetry.dependencies]
 python = "^3.12,<3.14"
-litellm = ">=1.83.10"                              # Bumped to address CVE-2026-42208/42271/42203/40217 (CRO-12735)
+litellm = ">=1.95.0"                               # Bumped to address CVE-2026-42208/42271/42203/40217 (CRO-12735), GHSA-g5ff-637f-6q2m (COMP-547)
 openai = ">=2.8.0,<3.0.0"                         # Updated to be compatible with litellm and browser-use
 aiohttp = ">=3.14.4"                               # Bumped to address CVE-2026-69244 (COMP-171/COMP-482); versions <= 3.14.3 are vulnerable
 google-genai = "*"                                 # To use litellm with Gemini Pro API
@@ -83,23 +83,27 @@ python-docx = "*"
 bashlex = "^0.18"
 
 # Explicitly pinned packages for security
-pypdf = ">=6.19.0"                                     # Bumped to address CVE-2026-102993 through CVE-2026-103000 (COMP-406)
-pillow = ">=11.3,<13.0"
+pypdf = ">=6.21.4,<7.0"                                # Bumped to address CVE-2026-102993 through CVE-2026-103000 (COMP-406), CVE-2026-115572 through CVE-2026-119209 (COMP-547)
+pillow = ">=13.0.0,<14.0"                              # Bumped to address CVE-2026-96639/112393/112900 and related Highs (COMP-547)
 starlette = ">=1.3.1,<2.0"
-authlib = "^1.6.6"
+authlib = "^1.9.1"                                     # Bumped to address CVE-2026-114615/114616/116672 (COMP-547)
 urllib3 = ">=2.8.0"                                  # Bumped to address CVE-2026-97687/97689 (COMP-406)
 requests = "^2.32.5"
 setuptools = ">=78.1.1"
 h2 = ">=4.3.0"
-nbconvert = ">=7.17.0"
+nbconvert = ">=7.17.2"                                 # Bumped to address CVE-2026-114140 (COMP-547)
 filelock = ">=3.20.3"
-nltk = ">=3.9.4"
+nltk = ">=3.10.4"                                      # Bumped to address CVE-2026-81726, GHSA-j456-xh4h-cpf2 (COMP-547)
 cryptography = ">=50.0.0"                          # Updated to address CVE-2026-69247 (COMP-171); versions >= 44.0.0, < 50.0.0 are vulnerable
 
 gitpython = ">=3.1.58"                             # Bumped to address GHSA-4gmw-gg2m-w46p/9rj7-rf2p-w77r/hmq2-w58f-27jc/jm78-9fvv-mhgr/wvpp-8hx9-p66j (COMP-204)
 dulwich = ">=1.2.9"                                # Bumped to address GHSA-8mcx-5rqc-vhmf/cm62-gvxx-vmxx/5fqc-mrg8-w798/8w8g-wq8h-fq33 (COMP-406)
-virtualenv = ">=21.7.13"                           # Bumped to address CVE-2026-102925/102930/102937 (COMP-406)
+virtualenv = ">=21.14.7"                           # Bumped to address CVE-2026-102925/102930/102937 (COMP-406), CVE-2026-113725 (COMP-547)
 fsspec = ">=2026.6.0"                              # Bumped to address CVE-2026-103009 (COMP-482); versions < 2026.6.0 are vulnerable
+certifi = ">=2026.10.18"                           # Bumped to address GHSA-6q48-6c7w-9gw2 (COMP-547)
+dnspython = ">=2.9.0"                              # Bumped to address CVE-2026-114605 (COMP-547)
+pyasn1 = ">=0.6.5"                                 # Bumped to address CVE-2026-119194 through CVE-2026-119197 (COMP-547)
+oauthlib = ">=4.0.0"                               # Bumped to address CVE-2026-49272/118669 (COMP-547)
 
 # TODO: These are integrations that should probably be optional
 redis = ">=5.2,<7.0"
